@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Inventory • Admin Panel</title>
+    <!-- Font Awesome 6 (Free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ───────────── RESET & BASE ───────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f4f7fc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ───────────── HEADER ───────────── */
+        .app-header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header .logo i {
+            color: #38bdf8;
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-actions .badge {
+            background: #334155;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.4rem;
+            border: none;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #475569;
+            color: #e2e8f0;
+        }
+        .btn-outline:hover {
+            background: #334155;
+            border-color: #94a3b8;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* ───────────── MAIN LAYOUT ───────────── */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* ───────────── VIEW TOGGLE ───────────── */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: #e2e8f0;
+            padding: 0.3rem;
+            border-radius: 100px;
+            margin-bottom: 2rem;
+        }
+
+        .view-toggle .btn {
+            border-radius: 100px;
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .view-toggle .btn.active {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .view-toggle .btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ───────────── SEARCH BAR ───────────── */
+        .search-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar .search-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-bar .search-input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .search-bar input[type="text"] {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .search-bar input[type="text"]:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+        }
+
+        .search-bar .clear-search {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 50%;
+            width: 2.4rem;
+            height: 2.4rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #475569;
+            transition: 0.2s;
+        }
+
+        .search-bar .clear-search:hover {
+            background: #cbd5e1;
+        }
+
+        /* ───────────── PUBLIC GRID ───────────── */
+        .providers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .provider-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .provider-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.10);
+        }
+
+        .provider-card .photos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background: #e2e8f0;
+            height: 180px;
+        }
+
+        .provider-card .photos .photo-placeholder {
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 2rem;
+        }
+
+        .provider-card .photos img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #f1f5f9;
+        }
+
+        .provider-card .info {
+            padding: 1.25rem 1.5rem 1.5rem;
+        }
+
+        .provider-card .info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .provider-card .info .desc {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .provider-card .info .contacts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: #334155;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .provider-card .info .contacts i {
+            width: 1.2rem;
+            color: #2563eb;
+        }
+
+        .provider-card .info .contacts span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* ───────────── ADMIN PANEL ───────────── */
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .admin-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-header h2 i {
+            color: #2563eb;
+        }
+
+        .admin-header .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* ───────────── FORM ───────────── */
+        .form-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2.5rem;
+            border: 1px solid #eef2f6;
+        }
+
+        .form-card .form-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 0.7rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border 0.2s;
+            background: #fafcff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .photo-upload-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .photo-upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafcff;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .photo-upload-box.drag-over {
+            border-color: #2563eb;
+            background: #e0f2fe;
+            transform: scale(1.02);
+        }
+
+        .photo-upload-box:hover {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .photo-upload-box .preview-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .photo-upload-box .placeholder-icon {
+            font-size: 2.5rem;
+            color: #94a3b8;
+        }
+
+        .photo-upload-box .label-text {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .photo-upload-box input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .photo-upload-box .remove-photo {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+        }
+
+        .photo-upload-box.has-image .remove-photo {
+            display: flex;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ───────────── PROVIDER LIST (ADMIN) ───────────── */
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .admin-list-item {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            border: 1px solid #eef2f6;
+            transition: all 0.2s;
+        }
+
+        .admin-list-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .admin-list-item .item-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .admin-list-item .item-info .thumbnails {
+            display: flex;
+            gap: 4px;
+        }
+
+        .admin-list-item .item-info .thumbnails img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-list-item .item-info .thumbnails .no-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-list-item .item-info .details .name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .admin-list-item .item-info .details .meta {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .admin-list-item .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ───────────── TOAST / NOTIFICATION ───────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 999;
+        }
+
+        .toast {
+            padding: 0.75rem 1.5rem;
+            border-radius: 14px;
+            background: #0f172a;
+            color: #f8fafc;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.20);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.success {
+            background: #16a34a;
+        }
+        .toast.error {
+            background: #dc2626;
+        }
+        .toast.info {
+            background: #2563eb;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ───────────── MODAL (Change Password) ───────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-box p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-box .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal-box .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        /* ───────────── RESPONSIVE ───────────── */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+                text-align: center;
+            }
+            .app-header .logo {
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+            .header-actions {
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .photo-upload-group {
+                grid-template-columns: 1fr;
+            }
+
+            .providers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-list-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-list-item .item-info {
+                flex-wrap: wrap;
+            }
+
+            .view-toggle .btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 1rem;
+            }
+
+            .admin-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .form-card {
+                padding: 1.25rem;
+            }
+
+            .modal-box {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .provider-card .photos {
+                height: 120px;
+            }
+            .header-actions .badge {
+                display: none;
+            }
+        }
+
+        /* ───────────── UTILITY ───────────── */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-muted {
+            color: #94a3b8;
+        }
+
+        .mt-1 {
+            margin-top: 1rem;
+        }
+        .mb-1 {
+            margin-bottom: 1rem;
+        }
+
+        /* ───────────── AUTH OVERLAY ───────────── */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .auth-overlay.active {
+            display: flex;
+        }
+
+        .auth-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.30);
+            text-align: center;
+        }
+
+        .auth-box h2 {
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .auth-box p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-box .form-group {
+            text-align: left;
+        }
+
+        .auth-box .form-group input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── HEADER ─── -->
+    <header class="app-header">
+        <div class="logo">
+            <i class="fas fa-cubes"></i>
+            <span>ServiceInventory</span>
+        </div>
+        <div class="header-actions">
+            <span class="badge"><i class="fas fa-database"></i> <span id="providerCount">0</span> providers</span>
+            <button class="btn btn-outline btn-sm" id="toggleViewBtn">
+                <i class="fas fa-user-shield"></i> Admin
+            </button>
+        </div>
+    </header>
+
+    <!-- ─── AUTH OVERLAY ─── -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-box">
+            <i class="fas fa-shield-alt" style="font-size:3rem;color:#2563eb;margin-bottom:0.5rem;"></i>
+            <h2>Admin Access</h2>
+            <p>Enter the admin password to manage service providers.</p>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="authPassword" placeholder="Enter password" />
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:1.2rem;" id="authLoginBtn">
+                <i class="fas fa-unlock"></i> Unlock Admin
+            </button>
+            <p style="margin-top:1rem;font-size:0.8rem;color:#94a3b8;">
+                Default: <strong>admin123</strong> (change it in admin)
+            </p>
+        </div>
+    </div>
+
+    <!-- ─── CHANGE PASSWORD MODAL ─── -->
+    <div class="modal-overlay" id="changePwModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-key" style="color:#2563eb;"></i> Change Password</h3>
+            <p>Update your admin password. The new password will be stored locally.</p>
+            <form id="changePwForm">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPw" required placeholder="Enter current password" />
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPw" required placeholder="Enter new password" minlength="4" />
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPw" required placeholder="Confirm new password" />
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelPwBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="savePwBtn">
+                        <i class="fas fa-save"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── MAIN ─── -->
+    <main class="container">
+
+        <!-- View Toggle -->
+        <div class="view-toggle" id="viewToggle">
+            <button class="btn active" data-view="public">
+                <i class="fas fa-eye"></i> Public View
+            </button>
+            <button class="btn" data-view="admin">
+                <i class="fas fa-user-cog"></i> Admin Panel
+            </button>
+        </div>
+
+        <!-- ─── PUBLIC VIEW ─── -->
+        <section id="publicView">
+            <!-- Search bar -->
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="publicSearchInput" placeholder="Search providers by name, category, or description..." />
+                </div>
+                <button class="clear-search" id="publicClearSearch" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="providers-grid" id="publicGrid">
+                <!-- Rendered by JS -->
+            </div>
+        </section>
+
+        <!-- ─── ADMIN PANEL ─── -->
+        <section class="admin-panel" id="adminPanel">
+
+            <div class="admin-header">
+                <h2><i class="fas fa-user-cog"></i> Manage Providers</h2>
+                <div class="admin-actions">
+                    <div class="export-actions" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" id="exportJsonBtn"><i class="fas fa-file-code"></i> JSON</button>
+                        <button class="btn btn-success btn-sm" id="exportCsvBtn"><i class="fas fa-file-csv"></i> CSV</button>
+                    </div>
+                    <button class="btn btn-outline btn-sm" id="changePwBtn">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                    <button class="btn btn-success" id="showAddFormBtn">
+                        <i class="fas fa-plus-circle"></i> Add New
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search bar for admin -->
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="adminSearchInput" placeholder="Filter providers..." />
+                </div>
+                <button class="clear-search" id="adminClearSearch" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Add / Edit Form -->
+            <div class="form-card" id="providerFormCard">
+                <div class="form-title">
+                    <i class="fas fa-pen-fancy" style="color:#2563eb;"></i>
+                    <span id="formTitle">Add Service Provider</span>
+                </div>
+                <form id="providerForm" novalidate>
+                    <input type="hidden" id="editId" value="" />
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Provider Name <span class="required">*</span></label>
+                            <input type="text" id="providerName" placeholder="e.g. ABC Plumbing" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Category <span class="required">*</span></label>
+                            <input type="text" id="providerCategory" placeholder="e.g. Plumbing" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label>Description</label>
+                            <textarea id="providerDesc" placeholder="Brief description of services..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone</label>
+                            <input type="text" id="providerPhone" placeholder="+1 (555) 000-0000" />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email</label>
+                            <input type="email" id="providerEmail" placeholder="contact@example.com" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                            <input type="text" id="providerAddress" placeholder="123 Main St, City" />
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Upload Photos (up to 3) — drag & drop or click</label>
+                        <div class="photo-upload-group" id="photoUploadGroup">
+                            <div class="photo-upload-box" data-index="0">
+                                <i class="fas fa-image placeholder-icon"></i>
+                                <span class="label-text">Photo 1</span>
+                                <input type="file" accept="image/*" />
+                                <button type="button" class="remove-photo" data-index="0">✕</button>
+                                <img class="preview-img hidden" src="" alt="preview" />
+                            </div>
+                            <div class="photo-upload-box" data-index="1">
+                                <i class="fas fa-image placeholder-icon"></i>
+                                <span class="label-text">Photo 2</span>
+                                <input type="file" accept="image/*" />
+                                <button type="button" class="remove-photo" data-index="1">✕</button>
+                                <img class="preview-img hidden" src="" alt="preview" />
+                            </div>
+                            <div class="photo-upload-box" data-index="2">
+                                <i class="fas fa-image placeholder-icon"></i>
+                                <span class="label-text">Photo 3</span>
+                                <input type="file" accept="image/*" />
+                                <button type="button" class="remove-photo" data-index="2">✕</button>
+                                <img class="preview-img hidden" src="" alt="preview" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="formSubmitBtn">
+                            <i class="fas fa-save"></i> Save Provider
+                        </button>
+                        <button type="button" class="btn" id="formCancelBtn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List -->
+            <div class="admin-list" id="adminList">
+                <!-- Rendered by JS -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ─── TOAST CONTAINER ─── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ─── JAVASCRIPT ─── -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── STATE ───
+            let providers = [];
+            let editingId = null;
+            let isAdmin = false;
+
+            // ─── PASSWORD MANAGEMENT ───
+            const ADMIN_PASSWORD_KEY = 'adminPassword';
+            const DEFAULT_PASSWORD = 'admin123';
+
+            function getStoredPassword() {
+                return localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_PASSWORD;
+            }
+
+            function setStoredPassword(newPw) {
+                localStorage.setItem(ADMIN_PASSWORD_KEY, newPw);
+            }
+
+            // ─── DOM REFS ───
+            const publicGrid = document.getElementById('publicGrid');
+            const adminList = document.getElementById('adminList');
+            const providerCount = document.getElementById('providerCount');
+
+            const toggleViewBtn = document.getElementById('toggleViewBtn');
+            const viewToggle = document.getElementById('viewToggle');
+            const publicView = document.getElementById('publicView');
+            const adminPanel = document.getElementById('adminPanel');
+
+            const authOverlay = document.getElementById('authOverlay');
+            const authPassword = document.getElementById('authPassword');
+            const authLoginBtn = document.getElementById('authLoginBtn');
+
+            const form = document.getElementById('providerForm');
+            const formTitle = document.getElementById('formTitle');
+            const editId = document.getElementById('editId');
+            const providerName = document.getElementById('providerName');
+            const providerCategory = document.getElementById('providerCategory');
+            const providerDesc = document.getElementById('providerDesc');
+            const providerPhone = document.getElementById('providerPhone');
+            const providerEmail = document.getElementById('providerEmail');
+            const providerAddress = document.getElementById('providerAddress');
+            const formSubmitBtn = document.getElementById('formSubmitBtn');
+            const formCancelBtn = document.getElementById('formCancelBtn');
+            const showAddFormBtn = document.getElementById('showAddFormBtn');
+            const providerFormCard = document.getElementById('providerFormCard');
+
+            // Search inputs
+            const publicSearchInput = document.getElementById('publicSearchInput');
+            const adminSearchInput = document.getElementById('adminSearchInput');
+            const publicClearSearch = document.getElementById('publicClearSearch');
+            const adminClearSearch = document.getElementById('adminClearSearch');
+
+            // Export buttons
+            const exportJsonBtn = document.getElementById('exportJsonBtn');
+            const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+            // Change password modal
+            const changePwModal = document.getElementById('changePwModal');
+            const changePwBtn = document.getElementById('changePwBtn');
+            const cancelPwBtn = document.getElementById('cancelPwBtn');
+            const changePwForm = document.getElementById('changePwForm');
+            const currentPw = document.getElementById('currentPw');
+            const newPw = document.getElementById('newPw');
+            const confirmPw = document.getElementById('confirmPw');
+
+            const photoBoxes = document.querySelectorAll('.photo-upload-box');
+
+            // ─── HELPERS ───
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            }
+
+            function toast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-circle',
+                    info: 'fa-info-circle'
+                };
+                el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`;
+                container.appendChild(el);
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateX(40px)';
+                    el.style.transition = 'all 0.3s ease';
+                    setTimeout(() => el.remove(), 300);
+                }, 3000);
+            }
+
+            function loadProviders() {
+                try {
+                    const data = localStorage.getItem('serviceProviders');
+                    providers = data ? JSON.parse(data) : [];
+                    providers = providers.map(p => ({
+                        ...p,
+                        photos: p.photos || []
+                    }));
+                } catch {
+                    providers = [];
+                }
+                updateCount();
+                renderPublic();
+                renderAdminList();
+            }
+
+            function saveProviders() {
+                localStorage.setItem('serviceProviders', JSON.stringify(providers));
+                updateCount();
+                filterPublic();
+                filterAdmin();
+            }
+
+            function updateCount() {
+                providerCount.textContent = providers.length;
+            }
+
+            // ─── FILTERING ───
+            function getFilteredProviders(searchTerm) {
+                if (!searchTerm) return providers;
+                const term = searchTerm.toLowerCase().trim();
+                return providers.filter(p =>
+                    (p.name && p.name.toLowerCase().includes(term)) ||
+                    (p.category && p.category.toLowerCase().includes(term)) ||
+                    (p.description && p.description.toLowerCase().includes(term)) ||
+                    (p.phone && p.phone.includes(term)) ||
+                    (p.email && p.email.toLowerCase().includes(term)) ||
+                    (p.address && p.address.toLowerCase().includes(term))
+                );
+            }
+
+            function filterPublic() {
+                const term = publicSearchInput.value;
+                const filtered = getFilteredProviders(term);
+                renderPublic(filtered);
+                publicClearSearch.style.display = term ? 'flex' : 'none';
+            }
+
+            function filterAdmin() {
+                const term = adminSearchInput.value;
+                const filtered = getFilteredProviders(term);
+                renderAdminList(filtered);
+                adminClearSearch.style.display = term ? 'flex' : 'none';
+            }
+
+            // ─── RENDER PUBLIC ───
+            function renderPublic(providerList = null) {
+                const list = providerList || providers;
+                if (!list.length) {
+                    publicGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1;">
+                            <i class="fas fa-box-open"></i>
+                            <h3>${providers.length ? 'No matching providers' : 'No service providers yet'}</h3>
+                            <p style="color:#94a3b8;">${providers.length ? 'Try a different search term.' : 'Admins can add providers from the Admin panel.'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                publicGrid.innerHTML = list.map(p => `
+                    <div class="provider-card" data-id="${p.id}">
+                        <div class="photos">
+                            ${p.photos && p.photos.length ? p.photos.map(src => `
+                                <img src="${src}" alt="photo" loading="lazy" />
+                            `).join('') : Array.from({length:3}, (_,i) => `
+                                <div class="photo-placeholder"><i class="fas fa-image"></i></div>
+                            `).join('')}
+                        </div>
+                        <div class="info">
+                            <h3>${escapeHtml(p.name)}</h3>
+                            <div class="desc">${escapeHtml(p.description || 'No description')}</div>
+                            <div class="contacts">
+                                ${p.phone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(p.phone)}</span>` : ''}
+                                ${p.email ? `<span><i class="fas fa-envelope"></i> ${escapeHtml(p.email)}</span>` : ''}
+                                ${p.address ? `<span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.address)}</span>` : ''}
+                                ${p.category ? `<span><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // ─── RENDER ADMIN LIST ───
+            function renderAdminList(providerList = null) {
+                const list = providerList || providers;
+                if (!list.length) {
+                    adminList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-plus"></i>
+                            <h3>${providers.length ? 'No matching providers' : 'No providers added yet'}</h3>
+                            <p style="color:#94a3b8;">${providers.length ? 'Try a different search.' : 'Click "Add New" to create your first service provider.'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                adminList.innerHTML = list.map(p => `
+                    <div class="admin-list-item" data-id="${p.id}">
+                        <div class="item-info">
+                            <div class="thumbnails">
+                                ${p.photos && p.photos.length ? p.photos.slice(0,3).map(src => `
+                                    <img src="${src}" alt="thumb" loading="lazy" />
+                                `).join('') : Array.from({length:3}, (_,i) => `
+                                    <div class="no-img"><i class="fas fa-image"></i></div>
+                                `).join('')}
+                            </div>
+                            <div class="details">
+                                <div class="name">${escapeHtml(p.name)}</div>
+                                <div class="meta">${escapeHtml(p.category || 'Uncategorized')} • ${p.phone || 'No phone'}</div>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-primary btn-sm edit-btn" data-id="${p.id}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => editProvider(btn.dataset.id));
+                });
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', () => deleteProvider(btn.dataset.id));
+                });
+            }
+
+            // ─── CRUD ───
+            function addProvider(data) {
+                const newProvider = {
+                    id: generateId(),
+                    name: data.name.trim(),
+                    category: data.category.trim(),
+                    description: data.description ? data.description.trim() : '',
+                    phone: data.phone ? data.phone.trim() : '',
+                    email: data.email ? data.email.trim() : '',
+                    address: data.address ? data.address.trim() : '',
+                    photos: data.photos || [],
+                    createdAt: new Date().toISOString()
+                };
+                providers.unshift(newProvider);
+                saveProviders();
+                return newProvider;
+            }
+
+            function updateProvider(id, data) {
+                const idx = providers.findIndex(p => p.id === id);
+                if (idx === -1) return null;
+                const p = providers[idx];
+                p.name = data.name.trim();
+                p.category = data.category.trim();
+                p.description = data.description ? data.description.trim() : '';
+                p.phone = data.phone ? data.phone.trim() : '';
+                p.email = data.email ? data.email.trim() : '';
+                p.address = data.address ? data.address.trim() : '';
+                if (data.photos) p.photos = data.photos;
+                providers[idx] = p;
+                saveProviders();
+                return p;
+            }
+
+            function deleteProvider(id) {
+                if (!confirm('Delete this provider?')) return;
+                providers = providers.filter(p => p.id !== id);
+                saveProviders();
+                toast('Provider deleted', 'success');
+                if (editingId === id) cancelForm();
+            }
+
+            function editProvider(id) {
+                const p = providers.find(pr => pr.id === id);
+                if (!p) return;
+                editingId = id;
+                editId.value = id;
+                providerName.value = p.name || '';
+                providerCategory.value = p.category || '';
+                providerDesc.value = p.description || '';
+                providerPhone.value = p.phone || '';
+                providerEmail.value = p.email || '';
+                providerAddress.value = p.address || '';
+                formTitle.textContent = 'Edit Service Provider';
+                formSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Update Provider';
+
+                const photos = p.photos || [];
+                photoBoxes.forEach((box, i) => {
+                    const img = box.querySelector('.preview-img');
+                    const placeholder = box.querySelector('.placeholder-icon');
+                    const label = box.querySelector('.label-text');
+                    const removeBtn = box.querySelector('.remove-photo');
+                    const fileInput = box.querySelector('input[type="file"]');
+                    if (i < photos.length && photos[i]) {
+                        img.src = photos[i];
+                        img.classList.remove('hidden');
+                        placeholder.style.display = 'none';
+                        label.textContent = `Photo ${i+1}`;
+                        box.classList.add('has-image');
+                        box.dataset.photoData = photos[i];
+                    } else {
+                        img.src = '';
+                        img.classList.add('hidden');
+                        placeholder.style.display = 'block';
+                        label.textContent = `Photo ${i+1}`;
+                        box.classList.remove('has-image');
+                        box.dataset.photoData = '';
+                        fileInput.value = '';
+                    }
+                });
+
+                providerFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                showAddFormBtn.textContent = '✕ Close Form';
+                formCancelBtn.style.display = 'inline-flex';
+            }
+
+            function cancelForm() {
+                editingId = null;
+                editId.value = '';
+                form.reset();
+                formTitle.textContent = 'Add Service Provider';
+                formSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Save Provider';
+                showAddFormBtn.textContent = '<i class="fas fa-plus-circle"></i> Add New';
+                formCancelBtn.style.display = 'none';
+                photoBoxes.forEach((box, i) => {
+                    const img = box.querySelector('.preview-img');
+                    const placeholder = box.querySelector('.placeholder-icon');
+                    const label = box.querySelector('.label-text');
+                    const fileInput = box.querySelector('input[type="file"]');
+                    img.src = '';
+                    img.classList.add('hidden');
+                    placeholder.style.display = 'block';
+                    label.textContent = `Photo ${i+1}`;
+                    box.classList.remove('has-image');
+                    box.dataset.photoData = '';
+                    fileInput.value = '';
+                });
+                providerFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // ─── FORM SUBMIT ───
+            function handleFormSubmit(e) {
+                e.preventDefault();
+
+                const name = providerName.value.trim();
+                const category = providerCategory.value.trim();
+                if (!name || !category) {
+                    toast('Name and Category are required.', 'error');
+                    return;
+                }
+
+                const photos = [];
+                photoBoxes.forEach((box) => {
+                    const img = box.querySelector('.preview-img');
+                    if (box.dataset.photoData) {
+                        photos.push(box.dataset.photoData);
+                    } else if (!img.classList.contains('hidden') && img.src) {
+                        photos.push(img.src);
+                    }
+                });
+
+                const data = {
+                    name,
+                    category,
+                    description: providerDesc.value.trim(),
+                    phone: providerPhone.value.trim(),
+                    email: providerEmail.value.trim(),
+                    address: providerAddress.value.trim(),
+                    photos
+                };
+
+                const id = editId.value;
+                if (id) {
+                    updateProvider(id, data);
+                    toast('Provider updated!', 'success');
+                } else {
+                    addProvider(data);
+                    toast('Provider added!', 'success');
+                }
+                cancelForm();
+            }
+
+            // ─── PHOTO UPLOAD (drag & drop) ───
+            function setupPhotoBoxes() {
+                photoBoxes.forEach((box) => {
+                    const fileInput = box.querySelector('input[type="file"]');
+                    const img = box.querySelector('.preview-img');
+                    const placeholder = box.querySelector('.placeholder-icon');
+                    const label = box.querySelector('.label-text');
+                    const removeBtn = box.querySelector('.remove-photo');
+
+                    fileInput.addEventListener('change', function(e) {
+                        const file = this.files[0];
+                        if (!file) return;
+                        if (!file.type.startsWith('image/')) {
+                            toast('Please select an image file.', 'error');
+                            this.value = '';
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            setPhoto(box, ev.target.result);
+                            toast('Photo uploaded!', 'success');
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        clearPhoto(box);
+                        fileInput.value = '';
+                    });
+
+                    ['dragenter', 'dragover'].forEach(evt => {
+                        box.addEventListener(evt, function(e) {
+                            e.preventDefault();
+                            this.classList.add('drag-over');
+                        });
+                    });
+                    ['dragleave', 'drop'].forEach(evt => {
+                        box.addEventListener(evt, function(e) {
+                            e.preventDefault();
+                            this.classList.remove('drag-over');
+                        });
+                    });
+
+                    box.addEventListener('drop', function(e) {
+                        const files = e.dataTransfer.files;
+                        if (files.length === 0) return;
+                        const file = files[0];
+                        if (!file.type.startsWith('image/')) {
+                            toast('Dropped file is not an image.', 'error');
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            setPhoto(box, ev.target.result);
+                            toast('Photo dropped!', 'success');
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    box.addEventListener('click', function(e) {
+                        if (e.target.closest('.remove-photo')) return;
+                        fileInput.click();
+                    });
+                });
+            }
+
+            function setPhoto(box, dataUrl) {
+                const img = box.querySelector('.preview-img');
+                const placeholder = box.querySelector('.placeholder-icon');
+                const label = box.querySelector('.label-text');
+                img.src = dataUrl;
+                img.classList.remove('hidden');
+                placeholder.style.display = 'none';
+                label.textContent = `Photo ${box.dataset.index}`;
+                box.classList.add('has-image');
+                box.dataset.photoData = dataUrl;
+            }
+
+            function clearPhoto(box) {
+                const img = box.querySelector('.preview-img');
+                const placeholder = box.querySelector('.placeholder-icon');
+                const label = box.querySelector('.label-text');
+                const fileInput = box.querySelector('input[type="file"]');
+                img.src = '';
+                img.classList.add('hidden');
+                placeholder.style.display = 'block';
+                label.textContent = `Photo ${box.dataset.index}`;
+                box.classList.remove('has-image');
+                box.dataset.photoData = '';
+                fileInput.value = '';
+            }
+
+            // ─── EXPORT ───
+            function exportData(format) {
+                if (!providers.length) {
+                    toast('No data to export.', 'error');
+                    return;
+                }
+                let content, filename, mime;
+                if (format === 'json') {
+                    content = JSON.stringify(providers, null, 2);
+                    filename = 'service-providers.json';
+                    mime = 'application/json';
+                } else if (format === 'csv') {
+                    const headers = ['id', 'name', 'category', 'description', 'phone', 'email', 'address', 'photos', 'createdAt'];
+                    const rows = providers.map(p => {
+                        const photosStr = p.photos ? p.photos.join(';') : '';
+                        return [p.id, p.name, p.category, p.description, p.phone, p.email, p.address, photosStr, p.createdAt]
+                            .map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+                    });
+                    content = [headers.join(','), ...rows].join('\n');
+                    filename = 'service-providers.csv';
+                    mime = 'text/csv';
+                }
+                const blob = new Blob([content], { type: mime });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast(`Exported ${providers.length} providers as ${format.toUpperCase()}`, 'success');
+            }
+
+            // ─── VIEW TOGGLE ───
+            function setView(view) {
+                if (view === 'admin') {
+                    if (!isAdmin) {
+                        authOverlay.classList.add('active');
+                        return;
+                    }
+                    publicView.style.display = 'none';
+                    adminPanel.classList.add('active');
+                    document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.view-toggle .btn[data-view="admin"]').classList.add('active');
+                    toggleViewBtn.innerHTML = '<i class="fas fa-eye"></i> Public';
+                    filterAdmin();
+                } else {
+                    publicView.style.display = 'block';
+                    adminPanel.classList.remove('active');
+                    document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.view-toggle .btn[data-view="public"]').classList.add('active');
+                    toggleViewBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin';
+                    authOverlay.classList.remove('active');
+                    filterPublic();
+                }
+            }
+
+            // ─── AUTH ───
+            function attemptAuth(password) {
+                const stored = getStoredPassword();
+                if (password === stored) {
+                    isAdmin = true;
+                    authOverlay.classList.remove('active');
+                    toast('Admin access granted!', 'success');
+                    setView('admin');
+                    authPassword.value = '';
+                } else {
+                    toast('Incorrect password.', 'error');
+                    authPassword.value = '';
+                    authPassword.focus();
+                }
+            }
+
+            // ─── CHANGE PASSWORD ───
+            function openChangePwModal() {
+                changePwModal.classList.add('active');
+                currentPw.value = '';
+                newPw.value = '';
+                confirmPw.value = '';
+                currentPw.focus();
+            }
+
+            function closeChangePwModal() {
+                changePwModal.classList.remove('active');
+            }
+
+            function handleChangePassword(e) {
+                e.preventDefault();
+                const current = currentPw.value;
+                const newPassword = newPw.value;
+                const confirm = confirmPw.value;
+
+                const stored = getStoredPassword();
+                if (current !== stored) {
+                    toast('Current password is incorrect.', 'error');
+                    currentPw.focus();
+                    return;
+                }
+                if (newPassword.length < 4) {
+                    toast('New password must be at least 4 characters.', 'error');
+                    newPw.focus();
+                    return;
+                }
+                if (newPassword !== confirm) {
+                    toast('Passwords do not match.', 'error');
+                    confirmPw.focus();
+                    return;
+                }
+                setStoredPassword(newPassword);
+                toast('Password updated successfully!', 'success');
+                closeChangePwModal();
+            }
+
+            // ─── ESCAPE HTML ───
+            function escapeHtml(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ─── INIT ───
+            function init() {
+                // Ensure default password is stored if not already set
+                if (!localStorage.getItem(ADMIN_PASSWORD_KEY)) {
+                    setStoredPassword(DEFAULT_PASSWORD);
+                }
+
+                loadProviders();
+                setupPhotoBoxes();
+
+                // Form submit
+                form.addEventListener('submit', handleFormSubmit);
+
+                // Cancel
+                formCancelBtn.addEventListener('click', cancelForm);
+                formCancelBtn.style.display = 'none';
+
+                // Show add form
+                showAddFormBtn.addEventListener('click', function() {
+                    if (this.textContent.includes('Close')) {
+                        cancelForm();
+                        this.textContent = '<i class="fas fa-plus-circle"></i> Add New';
+                    } else {
+                        cancelForm();
+                        editingId = null;
+                        editId.value = '';
+                        formTitle.textContent = 'Add Service Provider';
+                        formSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Save Provider';
+                        providerFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        this.textContent = '✕ Close Form';
+                        formCancelBtn.style.display = 'inline-flex';
+                    }
+                });
+
+                // View toggle
+                document.querySelectorAll('.view-toggle .btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        setView(this.dataset.view);
+                    });
+                });
+
+                toggleViewBtn.addEventListener('click', function() {
+                    const current = document.querySelector('.view-toggle .btn.active');
+                    const next = current.dataset.view === 'public' ? 'admin' : 'public';
+                    setView(next);
+                });
+
+                // Auth
+                authLoginBtn.addEventListener('click', () => {
+                    attemptAuth(authPassword.value);
+                });
+                authPassword.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') attemptAuth(authPassword.value);
+                });
+
+                authOverlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        if (!isAdmin) {
+                            setView('public');
+                        }
+                        this.classList.remove('active');
+                    }
+                });
+
+                // Search events
+                publicSearchInput.addEventListener('input', filterPublic);
+                adminSearchInput.addEventListener('input', filterAdmin);
+                publicClearSearch.addEventListener('click', () => {
+                    publicSearchInput.value = '';
+                    filterPublic();
+                    publicSearchInput.focus();
+                });
+                adminClearSearch.addEventListener('click', () => {
+                    adminSearchInput.value = '';
+                    filterAdmin();
+                    adminSearchInput.focus();
+                });
+
+                // Export
+                exportJsonBtn.addEventListener('click', () => exportData('json'));
+                exportCsvBtn.addEventListener('click', () => exportData('csv'));
+
+                // Change password
+                changePwBtn.addEventListener('click', openChangePwModal);
+                cancelPwBtn.addEventListener('click', closeChangePwModal);
+                changePwForm.addEventListener('submit', handleChangePassword);
+                // Close modal on overlay click
+                changePwModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeChangePwModal();
+                });
+
+                // Set initial view
+                setView('public');
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (changePwModal.classList.contains('active')) {
+                            closeChangePwModal();
+                        } else if (editingId) {
+                            cancelForm();
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', init);
+
+        })();
+    </script>
+
+</body>
+</html>
